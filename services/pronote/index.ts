@@ -205,6 +205,7 @@ export class Pronote implements SchoolServicePlugin {
 
     if (this.session) {
       await sendPronoteMessageInChat(this.session, chat, content);
+      return;
     }
 
     error("Session is not valid", "Pronote.sendMessageInChat");

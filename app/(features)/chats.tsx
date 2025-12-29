@@ -23,6 +23,7 @@ import { NativeHeaderPressable, NativeHeaderSide, NativeHeaderTitle } from "@/ui
 import TabHeader from "@/ui/components/TabHeader";
 import TabHeaderTitle from "@/ui/components/TabHeaderTitle";
 import Search from "@/ui/components/Search";
+import ActivityIndicator from "@/components/ActivityIndicator";
 
 export default function ChatsView() {
     const [chats, setChats] = useState<Chat[]>([]);
@@ -191,26 +192,32 @@ export default function ChatsView() {
                     scrollIndicatorInsets={{ top: headerHeight - insets.top }}
                     ListHeaderComponent={<View style={{ height: headerHeight }} />}
                     ListEmptyComponent={
-                        <Dynamic animated key="empty-chats" entering={PapillonAppearIn} exiting={PapillonAppearOut}>
-                            <Stack
-                                hAlign="center"
-                                vAlign="center"
-                                flex
-                                style={{ width: "100%", marginTop: 16 }}
-                            >
-                                <Icon opacity={0.5} size={32} style={{ marginBottom: 3 }}>
-                                    <Papicons name={searchText ? "Search" : "TextBubble"} />
-                                </Icon>
-                                <Typography variant="h4" color="text" align="center">
-                                    {searchText ? t("Chat_Search_NoResults") : t("Chat_Empty_Title")}
-                                </Typography>
-                                <Typography variant="body2" color="secondary" align="center">
-                                    {searchText
-                                        ? t("Chat_Search_NoResults_Description")
-                                        : t("Chat_Empty_Description")}
-                                </Typography>
-                            </Stack>
-                        </Dynamic>
+                        loading ? (
+                            <View style={{ alignItems: "center", paddingVertical: 40 }}>
+                                <ActivityIndicator size={32} color={colors.primary} />
+                            </View>
+                        ) : (
+                            <Dynamic animated key="empty-chats" entering={PapillonAppearIn} exiting={PapillonAppearOut}>
+                                <Stack
+                                    hAlign="center"
+                                    vAlign="center"
+                                    flex
+                                    style={{ width: "100%", marginTop: 16 }}
+                                >
+                                    <Icon opacity={0.5} size={32} style={{ marginBottom: 3 }}>
+                                        <Papicons name={searchText ? "Search" : "TextBubble"} />
+                                    </Icon>
+                                    <Typography variant="h4" color="text" align="center">
+                                        {searchText ? t("Chat_Search_NoResults") : t("Chat_Empty_Title")}
+                                    </Typography>
+                                    <Typography variant="body2" color="secondary" align="center">
+                                        {searchText
+                                            ? t("Chat_Search_NoResults_Description")
+                                            : t("Chat_Empty_Description")}
+                                    </Typography>
+                                </Stack>
+                            </Dynamic>
+                        )
                     }
                 />
             </LayoutAnimationConfig>

@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { View, TextInput, Pressable, KeyboardAvoidingView, Platform, Linking } from "react-native";
+import React, { useCallback, useEffect, useState, useRef } from "react";
+import { View, TextInput, Pressable, KeyboardAvoidingView, Platform, Linking, ScrollView } from "react-native";
 import Icon from "@/ui/components/Icon";
 import Typography from "@/ui/components/Typography";
 import Stack from "@/ui/components/Stack";
@@ -12,10 +12,13 @@ import { Chat, Message } from "@/services/shared/chat";
 import { t } from "i18next";
 import Avatar from "@/ui/components/Avatar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ScrollView } from "react-native-gesture-handler";
 import { getInitials } from "@/utils/chats/initials";
 import { getProfileColorByName } from "@/utils/chats/colors";
 import { NativeHeaderPressable, NativeHeaderSide, NativeHeaderTitle } from "@/ui/components/NativeHeader";
+import { useAccountStore } from "@/stores/account";
+import { useSettingsStore } from "@/stores/settings";
+import { AppColors, Colors } from "@/utils/colors";
+import ActivityIndicator from "@/components/ActivityIndicator";
 
 const ChatModal = () => {
     const search = useLocalSearchParams();
@@ -31,6 +34,22 @@ const ChatModal = () => {
     const theme = useTheme();
     const colors = theme.colors;
     const insets = useSafeAreaInsets();
+    const scrollViewRef = useRef<ScrollView>(null);
+
+    // Récupérer l'utilisateur actuel pour détecter les messages sortants
+    const { accounts, lastUsedAccount } = useAccountStore();
+    const currentAccount = accounts.find(a => a.id === lastUsedAccount);
+    const currentUserName = currentAccount ? `${currentAccount.firstName} ${currentAccount.lastName}`.trim() : "";
+    // La photo de profil est stockée en base64, on la convertit en URI data
+    const profilePictureBase64 = currentAccount?.customisation?.profilePicture;
+    const currentUserAvatar = profilePictureBase64
+        ? (profilePictureBase64.startsWith("data:") ? profilePictureBase64 : `data:image/jpeg;base64,${profilePictureBase64}`)
+        : undefined;
+
+    // Récupérer la couleur d'accentuation choisie par l'utilisateur
+    const { personalization } = useSettingsStore();
+    const colorSelected = personalization.colorSelected ?? Colors.PINK;
+    const themeColor = AppColors.find(c => c.colorEnum === colorSelected)?.mainColor || "#DD007D";
 
     const stripHtmlTags = (html?: string) => {
         if (!html) return "";
@@ -65,7 +84,7 @@ const ChatModal = () => {
             // Récupérer la liste des chats pour trouver celui avec le ref
             const chats = await manager.getChats();
             const fullChat = chats?.find(c => c.id === chatParams.id);
-            
+
             if (fullChat) {
                 setChat(fullChat);
                 const msgs = await manager.getChatMessages(fullChat);
@@ -83,6 +102,15 @@ const ChatModal = () => {
     useEffect(() => {
         fetchMessages();
     }, []);
+
+    // Scroll vers le bas quand les messages sont chargés
+    useEffect(() => {
+        if (messages.length > 0) {
+            setTimeout(() => {
+                scrollViewRef.current?.scrollToEnd({ animated: false });
+            }, 100);
+        }
+    }, [messages]);
 
     const send = async () => {
         if (!chat || !text.trim()) return;
@@ -122,6 +150,7 @@ const ChatModal = () => {
                 keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
             >
                 <ScrollView
+                    ref={scrollViewRef}
                     contentContainerStyle={{
                         paddingBottom: 8,
                         paddingHorizontal: 16,
@@ -153,9 +182,22 @@ const ChatModal = () => {
                         </Stack>
                     </Stack>
 
-                    {/* Messages */}
-                    {messages.map((m) => {
-                        const isOutgoing = chatParams.creator === m.author;
+                    {/* Loader pendant le chargement */}
+                    {loading && messages.length === 0 && (
+                        <View style={{ alignItems: "center", paddingVertical: 40 }}>
+                            <ActivityIndicator size={32} color={themeColor} />
+                        </View>
+                    )}
+
+                    {/* Messages triés du plus ancien au plus récent */}
+                    {[...messages].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).map((m) => {
+                        // Détection des messages sortants (de l'utilisateur qui regarde l'écran)
+                        // Si createdByAccount = true, l'utilisateur est le créateur, donc ses messages = author === creator
+                        // Si createdByAccount = false, l'utilisateur n'est pas le créateur, donc ses messages = author !== creator
+                        const isOutgoing = !(chatParams.createdByAccount
+                            ? m.author === chatParams.creator
+                            : m.author !== chatParams.creator);
+
                         const cleaned = decodeHtmlEntities(stripHtmlTags(m.content));
                         const msgProfileColor = getProfileColorByName(m.author);
 
@@ -165,40 +207,60 @@ const ChatModal = () => {
                                     style={{
                                         flexDirection: "row",
                                         justifyContent: isOutgoing ? "flex-end" : "flex-start",
+                                        alignItems: "flex-end",
                                         paddingHorizontal: 4,
                                     }}
                                 >
+                                    {/* Avatar à gauche pour les messages reçus */}
                                     {!isOutgoing && (
                                         <Avatar
                                             size={32}
                                             color={msgProfileColor}
                                             initials={getInitials(m.author)}
-                                            style={{ marginRight: 8, alignSelf: "flex-end" }}
+                                            style={{ marginRight: 8 }}
                                         />
                                     )}
-                                    <View
-                                        style={{
-                                            maxWidth: "75%",
-                                            backgroundColor: isOutgoing ? colors.primary : colors.card,
-                                            paddingVertical: 10,
-                                            paddingHorizontal: 12,
-                                            borderRadius: 18,
-                                            borderTopRightRadius: isOutgoing ? 6 : 18,
-                                            borderTopLeftRadius: isOutgoing ? 18 : 6,
-                                        }}
-                                    >
-                                        {!isOutgoing && (
-                                            <Typography weight="semibold" variant="caption" color={colors.text} style={{ marginBottom: 2 }}>
-                                                {m.author}
+                                    <View style={{ maxWidth: "70%" }}>
+                                        {/* Nom de l'auteur au-dessus de la bulle */}
+                                        <Typography weight="semibold" variant="caption" color="secondary" style={{ marginBottom: 4, textAlign: isOutgoing ? "right" : "left", marginHorizontal: 4 }}>
+                                            {isOutgoing ? t("Chat_Me") : m.author}
+                                        </Typography>
+                                        <View
+                                            style={{
+                                                backgroundColor: isOutgoing ? themeColor : colors.text + "12",
+                                                paddingVertical: 10,
+                                                paddingHorizontal: 14,
+                                                borderRadius: 20,
+                                                borderBottomRightRadius: isOutgoing ? 6 : 20,
+                                                borderBottomLeftRadius: isOutgoing ? 20 : 6,
+                                                // Ombre légère pour les messages de l'utilisateur
+                                                ...(isOutgoing && {
+                                                    shadowColor: themeColor,
+                                                    shadowOffset: { width: 0, height: 2 },
+                                                    shadowOpacity: 0.25,
+                                                    shadowRadius: 6,
+                                                    elevation: 3,
+                                                }),
+                                            }}
+                                        >
+                                            <Typography color={isOutgoing ? "#FFFFFF" : undefined}>
+                                                {cleaned}
                                             </Typography>
-                                        )}
-                                        <Typography color={isOutgoing ? "#FFFFFF" : undefined}>
-                                            {cleaned}
-                                        </Typography>
-                                        <Typography color={isOutgoing ? "#FFFFFF99" : "secondary"} variant="caption" style={{ marginTop: 4 }}>
-                                            {new Date(m.date).toLocaleString()}
-                                        </Typography>
+                                            <Typography color={isOutgoing ? "#FFFFFF99" : "secondary"} variant="caption" style={{ marginTop: 4, textAlign: isOutgoing ? "right" : "left" }}>
+                                                {new Date(m.date).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+                                            </Typography>
+                                        </View>
                                     </View>
+                                    {/* Avatar à droite pour les messages de l'utilisateur */}
+                                    {isOutgoing && (
+                                        <Avatar
+                                            size={32}
+                                            color={themeColor}
+                                            initials={getInitials(currentUserName || m.author)}
+                                            imageUrl={currentUserAvatar}
+                                            style={{ marginLeft: 8 }}
+                                        />
+                                    )}
                                 </View>
 
                                 {/* Pièces jointes en dessous de la bulle */}
@@ -206,7 +268,7 @@ const ChatModal = () => {
                                     <View style={{
                                         marginTop: 6,
                                         marginLeft: isOutgoing ? 0 : 44,
-                                        marginRight: isOutgoing ? 4 : 0,
+                                        marginRight: isOutgoing ? 44 : 0,
                                         gap: 4,
                                         alignItems: isOutgoing ? "flex-end" : "flex-start",
                                     }}>
