@@ -55,7 +55,17 @@ function log(message: string, from?: string): void {
   console.log(entry);
 }
 
+// Messages d'erreur à ignorer silencieusement
+const SILENT_ERRORS = [
+  "Chat tab not found in session",
+];
+
 function error(message: string, from?: string): void {
+  // Ignorer certaines erreurs silencieusement
+  if (SILENT_ERRORS.some(err => message.includes(err))) {
+    return;
+  }
+
   const date = getIsoDate()
   const functionName = obtainFunctionName(from)
   const entry = getMessage(1, date, functionName, message);
