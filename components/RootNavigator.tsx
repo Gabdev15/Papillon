@@ -206,6 +206,16 @@ export function RootNavigator() {
           presentation: "modal"
         }}
       />
+      <Stack.Screen
+        name="(features)/chats"
+        options={{
+          headerShown: true,
+          headerTitle: t("Tab_Chats"),
+          headerTransparent: runsIOS26,
+          headerLargeTitle: true,
+          presentation: "modal"
+        }}
+      />
     </Stack>
   );
 }

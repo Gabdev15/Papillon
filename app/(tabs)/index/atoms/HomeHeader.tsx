@@ -62,7 +62,7 @@ const HomeHeader = () => {
         (chats.length > 1 ? t("Home_Chats_Button_Description_Number", { number: chats.length }) : t("Home_Chats_Button_Description_Singular"))
         : t("Home_Chats_Button_Description_None"),
       onPress: () => {
-        router.push("/(features)/soon");
+        router.push("/(features)/chats");
       }
     }
   ], [availableCanteenCards, absencesCount, chats, attendancesPeriods, attendances, t]);

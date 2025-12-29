@@ -5,6 +5,7 @@
   "Tab_Home": "Accueil",
   "Tab_Calendar": "Cours",
   "Tab_Tasks": "Tâches",
+  "Tab_Chats": "Discussions",
   "Tab_Grades": "Notes",
   "Tab_Profile": "Profil",
   "Tab_Custom_Profile": "Modifier mon profil",
@@ -150,6 +151,9 @@
   "Home_Chats_Button_Description_None": "Aucun message",
   "Home_Chats_Button_Description_Singular": "Un message",
   "Home_Chats_Button_Description_Number": "{{number}} messages",
+  "Chat_NoTitle": "Discussion sans titre",
+  "Chat_Write_Placeholder": "Écrire un message...",
+  "Chat_Send": "Envoyer",
 
   "Home_Attendance_Title": "Absences",
   "Home_Attendance_Button_Description_None": "Aucune absence",
