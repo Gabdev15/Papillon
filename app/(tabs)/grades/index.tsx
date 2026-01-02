@@ -3,15 +3,16 @@ import { LegendList } from '@legendapp/list';
 import { MenuView } from '@react-native-menu/menu';
 import { useTheme } from '@react-navigation/native';
 import { useNavigation } from 'expo-router';
+import { openBrowserAsync } from 'expo-web-browser';
 import { t } from 'i18next';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Dimensions, Platform, RefreshControl, View } from 'react-native';
+import { Alert, Dimensions, Platform, RefreshControl, TouchableOpacity, View } from 'react-native';
 import { useBottomTabBarHeight } from 'react-native-bottom-tabs';
 import Reanimated, { LinearTransition, useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getManager, subscribeManagerUpdate } from '@/services/shared';
-import { Period, Subject } from "@/services/shared/grade";
+import { GradeScore, Period, Subject } from "@/services/shared/grade";
 import ChipButton from '@/ui/components/ChipButton';
 import { CompactGrade } from '@/ui/components/CompactGrade';
 import { Dynamic } from '@/ui/components/Dynamic';
@@ -469,8 +470,60 @@ const GradesView: React.FC = () => {
             {sortings.find(s => s.value === sortMethod)?.label || t("Grades_Sort")}
           </ChipButton>
         }
-        /* Recherche */
-        bottom={<Search placeholder={t('Grades_Search_Placeholder')} color='#2B7ED6' onTextChange={(text) => setSearchText(text)} />}
+
+        bottom={
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, width: '100%' }}>
+            <Search
+              placeholder={t('Grades_Search_Placeholder')}
+              color='#2B7ED6'
+              onTextChange={(text) => setSearchText(text)}
+              style={{ flex: 1, marginRight: 10, marginLeft: 20 }}
+            />
+
+            <TouchableOpacity
+              style={{
+                width: 42,
+                height: 42,
+                borderRadius: 21,
+                backgroundColor: colors.text + "16",
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginRight: 12,
+              }}
+              onPress={async () => {
+                if (!currentPeriod || !manager) return;
+
+                try {
+                  const url = await manager.getReportCard?.(currentPeriod);
+                  if (url) {
+                    await openBrowserAsync(url);
+                  } else {
+                    Alert.alert(t('Error'), t('Grades_ReportCard_Not_Available'));
+                  }
+                } catch (e: any) {
+                  const message = e.message || "";
+                  const publicationDateMatch = message.match(/publié à partir du (\d{2}\/\d{2}\/\d{2})/);
+                  const insufficientRightsMatch = message.match(/droits.*insuffisants/i);
+
+                  if (publicationDateMatch) {
+                    Alert.alert(
+                      t('Grades_ReportCard_Not_Yet_Available_Title'),
+                      t('Grades_ReportCard_Not_Yet_Available_Message', { date: publicationDateMatch[1] })
+                    );
+                  } else if (insufficientRightsMatch) {
+                    Alert.alert(t('Grades_ReportCard_Not_Available'), t('Grades_ReportCard_Insufficient_Rights'));
+                  } else {
+                    Alert.alert(t('Error'), e.message || t('Grades_ReportCard_Error'));
+                  }
+                }
+              }}
+            >
+              <Icon opacity={0.6}>
+                <Papicons name='paper' />
+              </Icon>
+            </TouchableOpacity>
+          </View>
+        }
         shouldCollapseHeader={shouldCollapseHeader}
       />
 

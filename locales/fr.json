@@ -439,5 +439,11 @@
 
   "Today": "Aujourd'hui",
   "Yesterday": "Hier",
-  "Tomorrow": "Demain"
+  "Tomorrow": "Demain",
+
+  "Grades_ReportCard_Error": "Erreur lors du chargement du bulletin",
+  "Grades_ReportCard_Not_Available": "Bulletin non disponible",
+  "Grades_ReportCard_Not_Yet_Available_Title": "Bulletin indisponible",
+  "Grades_ReportCard_Not_Yet_Available_Message": "Ce bulletin sera disponible à partir du {{date}}.",
+  "Grades_ReportCard_Insufficient_Rights": "Les bulletins ne sont pas disponibles sur ton compte."
 }

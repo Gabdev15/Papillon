@@ -367,5 +367,11 @@
   "Modal_Task_Attachments": "Pezhioù-stag",
   "Today": "Hiziv",
   "Yesterday": "Dec'h",
-  "Tomorrow": "warc'hoazh"
+  "Tomorrow": "warc'hoazh",
+
+  "Grades_ReportCard_Error": "Fazi o kargañ ar bulten",
+  "Grades_ReportCard_Not_Available": "Bulten dihegerz",
+  "Grades_ReportCard_Not_Yet_Available_Title": "Bulten dihegerz",
+  "Grades_ReportCard_Not_Yet_Available_Message": "Ar bulten-mañ a vo hegerz adalek ar {{date}}.",
+  "Grades_ReportCard_Insufficient_Rights": "N'eo ket hegerz ar bultennoù war da gont."
 }

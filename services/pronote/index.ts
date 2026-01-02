@@ -9,7 +9,7 @@ import {
   fetchPronoteChats,
   fetchPronoteRecipients, sendPronoteMessageInChat,
 } from "@/services/pronote/chat";
-import { fetchPronoteGradePeriods, fetchPronoteGrades } from "@/services/pronote/grades";
+import { fetchPronoteGradePeriods, fetchPronoteGrades, fetchPronoteReportCard } from "@/services/pronote/grades";
 import { fetchPronoteHomeworks, setPronoteHomeworkAsDone } from "@/services/pronote/homework";
 import { fetchPronoteNews, setPronoteNewsAsAcknowledged } from "@/services/pronote/news";
 import { refreshPronoteAccount } from "@/services/pronote/refresh";
@@ -53,7 +53,7 @@ export class Pronote implements SchoolServicePlugin {
     const tabCapabilities: Partial<Record<TabLocation, Capabilities | Capabilities[]>> = {
       [TabLocation.Assignments]: Capabilities.HOMEWORK,
       [TabLocation.Discussions]: [Capabilities.CHAT_READ, Capabilities.CHAT_REPLY, Capabilities.CHAT_CREATE],
-      [TabLocation.Grades]: Capabilities.GRADES,
+      [TabLocation.Grades]: [Capabilities.GRADES, Capabilities.REPORT_CARD],
       [TabLocation.Notebook]: [Capabilities.ATTENDANCE, Capabilities.ATTENDANCE_PERIODS],
       [TabLocation.News]: Capabilities.NEWS,
       [TabLocation.Menus]: Capabilities.CANTEEN_MENU,
@@ -237,5 +237,16 @@ export class Pronote implements SchoolServicePlugin {
     }
 
     error("Session is not valid", "Skolengo.createMail")
+  }
+
+  async getReportCard(period: Period): Promise<string> {
+    await this.checkTokenValidty()
+
+    if (this.session) {
+      return fetchPronoteReportCard(this.session, period);
+    }
+
+    error("Session is not valid", "Pronote.getReportCard");
+    return "";
   }
 }

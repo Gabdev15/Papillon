@@ -367,5 +367,11 @@
   "Modal_Task_Attachments": "Archivos adjuntos",
   "Today": "Hoy",
   "Yesterday": "Ayer",
-  "Tomorrow": "Mañana"
+  "Tomorrow": "Mañana",
+
+  "Grades_ReportCard_Error": "Error al cargar el boletín",
+  "Grades_ReportCard_Not_Available": "Boletín no disponible",
+  "Grades_ReportCard_Not_Yet_Available_Title": "Boletín no disponible",
+  "Grades_ReportCard_Not_Yet_Available_Message": "Este boletín estará disponible a partir del {{date}}.",
+  "Grades_ReportCard_Insufficient_Rights": "Los boletines no están disponibles en tu cuenta."
 }

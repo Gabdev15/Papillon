@@ -1,4 +1,4 @@
-import { GradeKind, GradesOverview, gradesOverview, GradeValue, SessionHandle, TabLocation } from "pawnote";
+import { gradebookPDF, GradeKind, GradesOverview, gradesOverview, GradeValue, SessionHandle, TabLocation } from "pawnote";
 
 import { AttachmentType } from "@/services/shared/attachment";
 import { Grade, GradeScore, Period, PeriodGrades, Subject } from "@/services/shared/grade";
@@ -140,4 +140,30 @@ function mapGradeValueToScore(grade: GradeValue | undefined): GradeScore {
   default:
     return { value: 0, disabled: true, status: "Inconnu" };
   }
+}
+
+/**
+
+ * @param {SessionHandle} session 
+ * @param {Period} period 
+ * @returns {Promise<string>} 
+ */
+
+export async function fetchPronoteReportCard(session: SessionHandle, period: Period): Promise<string> {
+  const gradeTab = session.user.resources[0].tabs.get(TabLocation.Grades);
+  if (!gradeTab) {
+    error("Grades tab not found in session", "fetchPronoteReportCard");
+  }
+
+  const pawnotePeriod = gradeTab.periods.find(p => p.name === period.name);
+  if (!pawnotePeriod) {
+    error(`Period "${period.name}" not found in grades tab`, "fetchPronoteReportCard");
+    return ""; 
+  }
+
+  if (typeof gradebookPDF !== 'function') {
+    throw new Error("gradebookPDF implementation not found");
+  }
+
+  return gradebookPDF(session, pawnotePeriod);
 }

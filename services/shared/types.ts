@@ -94,6 +94,7 @@ export interface SchoolServicePlugin {
   getCanteenBalances?: () => Promise<Balance[]>;
   getCanteenTransactionsHistory?: () => Promise<CanteenHistoryItem[]>;
   getCanteenQRCodes?: () => Promise<QRCode>;
+  getReportCard?: (period: Period) => Promise<string>;
   getCanteenBookingWeek?: (weekNumber: number) => Promise<BookingDay[]>;
   setMealAsBooked?: (meal: Booking, booked?: boolean) => Promise<Booking>;
 }
@@ -120,6 +121,7 @@ export enum Capabilities {
   CANTEEN_HISTORY,
   CANTEEN_BOOKINGS,
   CANTEEN_QRCODE,
+  REPORT_CARD,
 }
 
 /**

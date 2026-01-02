@@ -370,5 +370,11 @@
   "Modal_Task_Attachments": "Attachments",
   "Today": "Today",
   "Yesterday": "Yesterday",
-  "Tomorrow": "Tomorrow"
+  "Tomorrow": "Tomorrow",
+
+  "Grades_ReportCard_Error": "Error loading report card",
+  "Grades_ReportCard_Not_Available": "Report card not available",
+  "Grades_ReportCard_Not_Yet_Available_Title": "Report card unavailable",
+  "Grades_ReportCard_Not_Yet_Available_Message": "This report card will be available starting {{date}}.",
+  "Grades_ReportCard_Insufficient_Rights": "Report cards are not available for your account."
 }

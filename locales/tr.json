@@ -367,5 +367,11 @@
   "Modal_Task_Attachments": "Ekler",
   "Today": "Bugün",
   "Yesterday": "Dün",
-  "Tomorrow": "Yarın"
+  "Tomorrow": "Yarın",
+
+  "Grades_ReportCard_Error": "Karne yüklenirken hata oluştu",
+  "Grades_ReportCard_Not_Available": "Karne mevcut değil",
+  "Grades_ReportCard_Not_Yet_Available_Title": "Karne mevcut değil",
+  "Grades_ReportCard_Not_Yet_Available_Message": "Bu karne {{date}} tarihinden itibaren erişilebilir olacak.",
+  "Grades_ReportCard_Insufficient_Rights": "Karneler hesabınızda mevcut değil."
 }

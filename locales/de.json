@@ -367,5 +367,11 @@
   "Modal_Task_Attachments": "Anhänge",
   "Today": "Heute",
   "Yesterday": "Gestern",
-  "Tomorrow": "Morgen"
+  "Tomorrow": "Morgen",
+
+  "Grades_ReportCard_Error": "Fehler beim Laden des Zeugnisses",
+  "Grades_ReportCard_Not_Available": "Zeugnis nicht verfügbar",
+  "Grades_ReportCard_Not_Yet_Available_Title": "Zeugnis nicht verfügbar",
+  "Grades_ReportCard_Not_Yet_Available_Message": "Dieses Zeugnis ist ab dem {{date}} verfügbar.",
+  "Grades_ReportCard_Insufficient_Rights": "Zeugnisse sind für Ihr Konto nicht verfügbar."
 }

@@ -478,6 +478,18 @@ export class AccountManager {
     );
   }
 
+  async getReportCard(period: Period): Promise<string> {
+    return await this.fetchData(
+      Capabilities.REPORT_CARD,
+      async client =>
+        client.getReportCard ? await client.getReportCard(period) : "",
+      {
+        multiple: false,
+        clientId: period.createdByAccount,
+      }
+    );
+  }
+
   clientHasCapatibility(capatibility: Capabilities, clientId: string): boolean {
     const client = this.clients[clientId];
     if (client?.capabilities.includes(capatibility)) {
